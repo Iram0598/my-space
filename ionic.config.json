@@ -1,0 +1,7 @@
+{
+  "name": "my-zero-space",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
