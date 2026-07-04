@@ -1,20 +1,242 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Blank
-    </ion-title>
-  </ion-toolbar>
-</ion-header>
-
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
 
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
+  <!-- Three.js particle canvas -->
+  <canvas #threeCanvas class="three-canvas"></canvas>
+
+  <!-- Header -->
+  <header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-12 py-8 bg-transparent max-w-none">
+    <div class="text-xl font-black tracking-tighter text-white font-headline">MONOLITH</div>
+  </header>
+
+  <!-- Active section label (GSAP animates opacity + x) -->
+  @if (activeView) {
+    <div class="section-label">
+      <h2 class="font-headline font-black text-5xl lowercase tracking-tight leading-none whitespace-nowrap">
+        {{ activeView }}
+      </h2>
+    </div>
+  }
+
+  <main
+    class="relative min-h-screen flex flex-col items-center pt-24"
+    [class.overflow-hidden]="!activeView"
+  >
+    <div class="relative w-full flex flex-col items-center">
+
+      <!-- Profile Image Wrapper -->
+      <div class="home-profile relative z-30 flex flex-col items-center">
+        <img
+          alt="Profile Portrait"
+          class="w-64 h-64 rounded-full object-cover border-none shadow-2xl grayscale"
+          src="../../assets/profile_image/one.png"
+        />
+        <!-- Back Button -->
+        <button class="back-btn flex items-center gap-2 group" (click)="toggleView('home')">
+          <span class="material-symbols-outlined text-sm transition-transform group-hover:-translate-x-1">arrow_back</span>
+          <span class="font-label text-[10px] tracking-widest uppercase">BACK</span>
+        </button>
+      </div>
+
+      <!-- Central Vertical Line -->
+      <div class="vertical-axis" style="top: 280px;"></div>
+
+      <!-- HOME NAVIGATION -->
+      <div class="home-view relative w-full max-w-6xl px-8 z-20 mt-4">
+        <div class="grid grid-cols-2 gap-x-0 items-start">
+
+          <!-- Left: projects (01), blogs (03) -->
+          <div class="flex flex-col items-end pr-16 space-y-12 pt-4">
+            <div
+              class="nav-link-group group cursor-pointer text-right"
+              (click)="toggleView('projects')"
+            >
+              <span class="nav-meta font-label text-[10px] tracking-widest text-on-surface-variant block mb-1">01</span>
+              <h2 class="font-headline font-medium tracking-tight leading-none text-2xl lowercase hover:opacity-60 transition-opacity">projects</h2>
+            </div>
+            <div
+              class="nav-link-group group cursor-pointer text-right"
+              (click)="toggleView('blogs')"
+            >
+              <span class="nav-meta font-label text-[10px] tracking-widest text-on-surface-variant block mb-1">03</span>
+              <h2 class="font-headline font-medium tracking-tight leading-none text-2xl lowercase hover:opacity-60 transition-opacity">blogs</h2>
+            </div>
+          </div>
+
+          <!-- Right: experience (02), contact (04) -->
+          <div class="flex flex-col items-start pl-16 space-y-12 pt-20">
+            <div
+              class="nav-link-group group cursor-pointer text-left"
+              (click)="toggleView('experience')"
+            >
+              <span class="nav-meta font-label text-[10px] tracking-widest text-on-surface-variant block mb-1">02</span>
+              <h2 class="font-headline font-medium tracking-tight leading-none text-2xl lowercase hover:opacity-60 transition-opacity">experience</h2>
+            </div>
+            <div
+              class="nav-link-group group cursor-pointer text-left"
+              (click)="toggleView('contact')"
+            >
+              <span class="nav-meta font-label text-[10px] tracking-widest text-on-surface-variant block mb-1">04</span>
+              <h2 class="font-headline font-medium tracking-tight leading-none text-2xl lowercase hover:opacity-60 transition-opacity">contact</h2>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── PROJECTS CONTENT ────────────────────────────────── -->
+      <div
+        class="section-content absolute top-0 mt-[480px] w-full max-w-7xl px-12 pb-32 z-20"
+        [class.section-active]="activeView === 'projects'"
+      >
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+          <div class="md:col-span-8 group overflow-hidden bg-surface-container-low border border-outline-variant/10">
+            <div class="aspect-[16/9] overflow-hidden">
+              <img
+                alt="Project Visualization"
+                class="w-full h-full object-cover grayscale opacity-50 group-hover:scale-105 group-hover:opacity-80 transition-all duration-700"
+                src="../../assets/profile_image/one.png"
+              />
+            </div>
+            <div class="p-8">
+              <div class="flex gap-4 mb-4 flex-wrap">
+                <span class="bg-surface-container-highest px-3 py-1 font-label text-[10px] tracking-widest uppercase">ANGULAR</span>
+                <span class="bg-surface-container-highest px-3 py-1 font-label text-[10px] tracking-widest uppercase">IONIC</span>
+                <span class="bg-surface-container-highest px-3 py-1 font-label text-[10px] tracking-widest uppercase">TAILWIND</span>
+              </div>
+              <h4 class="font-headline font-bold text-3xl mb-2">MY ZERO SPACE</h4>
+              <p class="text-on-surface-variant text-sm max-w-md">Personal portfolio featuring editorial design and smooth state transitions across a minimal navigation system.</p>
+            </div>
+          </div>
+          <div class="md:col-span-4 flex flex-col gap-8">
+            <div class="bg-surface-container-high p-8 flex-1 group border border-outline-variant/10 hover:border-primary/20 transition-colors">
+              <span class="font-label text-[10px] tracking-tighter text-on-surface-variant mb-8 block uppercase">DESIGN SYSTEM</span>
+              <h4 class="font-headline font-bold text-xl mb-4 group-hover:text-primary transition-colors">MONOLITH UI</h4>
+              <div class="w-full h-[1px] bg-outline-variant/20 mb-4"></div>
+              <p class="text-xs text-on-surface-variant leading-relaxed">Zero-radius component library built for editorial and dark-mode-first interfaces.</p>
+            </div>
+            <div class="bg-surface-container-high p-8 flex-1 group border border-outline-variant/10 hover:border-primary/20 transition-colors">
+              <span class="font-label text-[10px] tracking-tighter text-on-surface-variant mb-8 block uppercase">OPEN SOURCE</span>
+              <h4 class="font-headline font-bold text-xl mb-4 group-hover:text-primary transition-colors">SIGNAL KIT</h4>
+              <div class="w-full h-[1px] bg-outline-variant/20 mb-4"></div>
+              <p class="text-xs text-on-surface-variant leading-relaxed">Angular 17 signal-based state management utilities for reactive UI architectures.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── EXPERIENCE CONTENT ─────────────────────────────── -->
+      <div
+        class="section-content absolute top-0 mt-[480px] w-full max-w-7xl px-12 pb-32 z-20"
+        [class.section-active]="activeView === 'experience'"
+      >
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+          <div class="md:col-span-8 overflow-hidden bg-surface-container-low border border-outline-variant/10">
+            <div class="p-8 md:p-12">
+              <span class="font-label text-[10px] tracking-tighter text-on-surface-variant mb-8 block uppercase">CURRENT · 2022 — PRESENT</span>
+              <h4 class="font-headline font-bold text-4xl md:text-5xl mb-4">IMPLEVISTA</h4>
+              <div class="w-full h-[1px] bg-outline-variant/20 mb-6"></div>
+              <p class="text-on-surface-variant text-sm leading-relaxed max-w-lg mb-8">
+                Lead Software Engineer architecting scalable web applications, design systems, and mobile-first experiences. Driving technical direction across the full stack with a focus on performance and developer experience.
+              </p>
+              <div class="flex gap-4 flex-wrap">
+                <span class="bg-surface-container-highest px-3 py-1 font-label text-[10px] tracking-widest uppercase">ANGULAR</span>
+                <span class="bg-surface-container-highest px-3 py-1 font-label text-[10px] tracking-widest uppercase">IONIC</span>
+                <span class="bg-surface-container-highest px-3 py-1 font-label text-[10px] tracking-widest uppercase">TYPESCRIPT</span>
+                <span class="bg-surface-container-highest px-3 py-1 font-label text-[10px] tracking-widest uppercase">TAILWIND</span>
+              </div>
+            </div>
+          </div>
+          <div class="md:col-span-4 flex flex-col gap-8">
+            <div class="bg-surface-container-high p-8 flex-1 group border border-outline-variant/10 hover:border-primary/20 transition-colors">
+              <span class="font-label text-[10px] tracking-tighter text-on-surface-variant mb-8 block uppercase">2020 — 2022</span>
+              <h4 class="font-headline font-bold text-xl mb-4 group-hover:text-primary transition-colors">FLUX LABS</h4>
+              <div class="w-full h-[1px] bg-outline-variant/20 mb-4"></div>
+              <p class="text-xs text-on-surface-variant leading-relaxed">Product engineer focused on consumer-facing web applications and performance optimization.</p>
+            </div>
+            <div class="bg-surface-container-high p-8 flex-1 group border border-outline-variant/10 hover:border-primary/20 transition-colors">
+              <span class="font-label text-[10px] tracking-tighter text-on-surface-variant mb-8 block uppercase">2018 — 2020</span>
+              <h4 class="font-headline font-bold text-xl mb-4 group-hover:text-primary transition-colors">ARCANE DIGITAL</h4>
+              <div class="w-full h-[1px] bg-outline-variant/20 mb-4"></div>
+              <p class="text-xs text-on-surface-variant leading-relaxed">UI engineer crafting interfaces for editorial media and e-commerce platforms.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── BLOGS CONTENT ──────────────────────────────────── -->
+      <div
+        class="section-content absolute top-0 mt-[480px] w-full max-w-7xl px-12 pb-32 z-20"
+        [class.section-active]="activeView === 'blogs'"
+      >
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div class="group overflow-hidden bg-surface-container-low border border-outline-variant/10 hover:border-primary/20 transition-colors p-8">
+            <span class="font-label text-[10px] tracking-tighter text-on-surface-variant mb-6 block uppercase">ENGINEERING · JAN 2024</span>
+            <h4 class="font-headline font-bold text-xl mb-4 group-hover:text-primary transition-colors leading-tight">Building Dark UI Systems at Scale</h4>
+            <div class="w-full h-[1px] bg-outline-variant/20 mb-4"></div>
+            <p class="text-xs text-on-surface-variant leading-relaxed">Systematic approaches for dark mode design, token architecture, and cross-platform consistency.</p>
+          </div>
+          <div class="group overflow-hidden bg-surface-container-low border border-outline-variant/10 hover:border-primary/20 transition-colors p-8">
+            <span class="font-label text-[10px] tracking-tighter text-on-surface-variant mb-6 block uppercase">PERFORMANCE · NOV 2023</span>
+            <h4 class="font-headline font-bold text-xl mb-4 group-hover:text-primary transition-colors leading-tight">Angular 17 and the Signal Revolution</h4>
+            <div class="w-full h-[1px] bg-outline-variant/20 mb-4"></div>
+            <p class="text-xs text-on-surface-variant leading-relaxed">How signals change the way we think about state management and reactivity in modern Angular apps.</p>
+          </div>
+          <div class="group overflow-hidden bg-surface-container-low border border-outline-variant/10 hover:border-primary/20 transition-colors p-8">
+            <span class="font-label text-[10px] tracking-tighter text-on-surface-variant mb-6 block uppercase">DESIGN · SEP 2023</span>
+            <h4 class="font-headline font-bold text-xl mb-4 group-hover:text-primary transition-colors leading-tight">Editorial UI: Typography as Architecture</h4>
+            <div class="w-full h-[1px] bg-outline-variant/20 mb-4"></div>
+            <p class="text-xs text-on-surface-variant leading-relaxed">How typographic hierarchy, whitespace, and restraint create layouts that feel intentional.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── CONTACT CONTENT ────────────────────────────────── -->
+      <div
+        class="section-content absolute top-0 mt-[480px] w-full max-w-7xl px-12 pb-32 z-20"
+        [class.section-active]="activeView === 'contact'"
+      >
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+          <div class="md:col-span-8 overflow-hidden bg-surface-container-low border border-outline-variant/10">
+            <div class="p-8 md:p-12">
+              <span class="font-label text-[10px] tracking-tighter text-on-surface-variant mb-8 block uppercase">GET IN TOUCH</span>
+              <h4 class="font-headline font-bold text-5xl md:text-6xl mb-2">MUSTAFA</h4>
+              <h4 class="font-headline font-bold text-5xl md:text-6xl mb-8 text-on-surface-variant">IRAM</h4>
+              <div class="w-full h-[1px] bg-outline-variant/20 mb-6"></div>
+              <a
+                href="mailto:mustafa.iram@implevista.com"
+                class="font-label text-sm tracking-widest text-primary hover:text-on-surface-variant transition-colors uppercase block mb-8"
+              >mustafa.iram&#64;implevista.com</a>
+              <p class="text-on-surface-variant text-sm leading-relaxed max-w-lg">
+                Open to new projects, collaborations, and interesting problems. If you have something worth building, let's talk.
+              </p>
+            </div>
+          </div>
+          <div class="md:col-span-4 flex flex-col gap-8">
+            <div class="bg-surface-container-high p-8 flex-1 border border-outline-variant/10">
+              <span class="font-label text-[10px] tracking-tighter text-on-surface-variant mb-8 block uppercase">LOCATION</span>
+              <h4 class="font-headline font-bold text-xl mb-4">KARACHI</h4>
+              <div class="w-full h-[1px] bg-outline-variant/20 mb-4"></div>
+              <p class="text-xs text-on-surface-variant leading-relaxed">Pakistan · Available for remote work worldwide.</p>
+            </div>
+            <div class="bg-surface-container-high p-8 flex-1 border border-outline-variant/10">
+              <span class="font-label text-[10px] tracking-tighter text-on-surface-variant mb-8 block uppercase">AVAILABILITY</span>
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-2 h-2 rounded-full bg-green-400 shrink-0"></div>
+                <h4 class="font-headline font-bold text-xl">OPEN</h4>
+              </div>
+              <div class="w-full h-[1px] bg-outline-variant/20 mb-4"></div>
+              <p class="text-xs text-on-surface-variant leading-relaxed">Available for freelance projects and full-time opportunities.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Radial vignette overlay -->
+  <div class="fixed top-0 left-0 w-full h-full pointer-events-none z-[5] opacity-20">
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_black_90%)]"></div>
   </div>
+
 </ion-content>
