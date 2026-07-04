@@ -3,7 +3,6 @@
   "compileOnSave": false,
   "compilerOptions": {
     "strict": true,
-    "baseUrl": "./",
     "sourceMap": true,
     "target": "es2022",
     "module": "es2020",
@@ -11,21 +10,21 @@
     "skipLibCheck": true,
     "importHelpers": true,
     "esModuleInterop": true,
-    "lib": ["es2018", "dom"], 
+    "lib": ["ES2022", "dom", "dom.iterable"],
     "noImplicitReturns": true,
     "outDir": "./dist/out-tsc",
     "noImplicitOverride": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "experimentalDecorators": true,
     "useDefineForClassFields": false,
     "noFallthroughCasesInSwitch": true,
     "forceConsistentCasingInFileNames": true,
-    "noPropertyAccessFromIndexSignature": true,
+    "noPropertyAccessFromIndexSignature": true
   },
   "angularCompilerOptions": {
     "strictTemplates": true,
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
-    "enableI18nLegacyMessageIdFormat": false,
+    "enableI18nLegacyMessageIdFormat": false
   }
 }

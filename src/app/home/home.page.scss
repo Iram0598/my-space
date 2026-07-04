@@ -1,4 +1,3 @@
-/* Three.js canvas — fixed, full-screen, behind everything */
 .three-canvas {
   position: fixed;
   top: 0;
@@ -9,44 +8,120 @@
   z-index: 0;
 }
 
-/* Structural: not animated by GSAP */
-.vertical-axis {
-  width: 1px;
-  background-color: rgba(255, 255, 255, 0.3);
-  height: 280px;
-  position: absolute;
+/* Centered container — GSAP sets xPercent:-50, yPercent:-50. Container is click-through. */
+.orbit-container {
+  position: fixed;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
+  width: 500px;
+  height: 500px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 30;
+  pointer-events: none;
+}
+
+.orbit-logo {
+  position: relative;
   z-index: 10;
-}
-
-/* Back button — GSAP controls opacity/pointer-events */
-.back-btn {
-  opacity: 0;
-  pointer-events: none;
-  position: absolute;
-  bottom: -60px;
-  left: 50%;
-  transform: translateX(-50%);
-  white-space: nowrap;
-}
-
-/* Section content — GSAP controls opacity/y/pointer-events */
-.section-content {
-  opacity: 0;
-  pointer-events: none;
-}
-
-.section-content.section-active {
+  user-select: none;
+  cursor: default;
   pointer-events: auto;
 }
 
-/* Section label — fixed, GSAP controls opacity/x */
-.section-label {
-  position: fixed;
+/* GSAP sets: xPercent:-50, yPercent:-50, x:0, y:0, opacity:0, scale:0.5, pointerEvents:none */
+.orbit-item {
+  position: absolute;
+  top: 50%;
   left: 50%;
-  top: 215px;
-  z-index: 60;
+  cursor: pointer;
+  text-align: center;
+  z-index: 20;
+  white-space: nowrap;
+  pointer-events: auto;
+}
+
+.nav-meta {
+  display: block;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 8px;
+  letter-spacing: 0.28em;
+  color: rgba(255, 255, 255, 0.28);
+  margin-bottom: 5px;
+}
+
+.nav-title {
+  font-family: Inter, sans-serif;
+  font-weight: 300;
+  font-size: 0.875rem;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  color: #ffffff;
+  text-transform: lowercase;
+  transition: opacity 0.2s ease;
+}
+
+.orbit-item:hover .nav-title {
+  opacity: 0.5;
+}
+
+.orbit-item.active-orbit .nav-title {
+  font-weight: 700;
+  opacity: 1;
+}
+
+/* Content panel — GSAP sets y:'100%', opacity:0 initially */
+.content-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50vh;
+  background: rgba(5, 5, 5, 0.97);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  z-index: 40;
   pointer-events: none;
-  opacity: 0;
+}
+
+.content-panel.panel-active {
+  pointer-events: auto;
+}
+
+.panel-inner {
+  position: relative;
+  height: 100%;
+  padding: 2.25rem 3.5rem;
+  overflow-y: auto;
+}
+
+.panel-section-label {
+  display: block;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 8px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.28);
+  margin-bottom: 1.25rem;
+}
+
+/* GSAP sets opacity:0, pointer-events:'none' initially */
+.close-btn {
+  position: absolute;
+  top: 1.5rem;
+  right: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.32);
+  background: none;
+  border: none;
+  padding: 0;
+  transition: color 0.2s;
+  z-index: 50;
+}
+
+.close-btn:hover {
+  color: rgba(255, 255, 255, 0.9);
 }
