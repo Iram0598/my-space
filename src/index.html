@@ -2,7 +2,7 @@
 <html class="dark" lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Mi/v | Portfolio</title>
+    <title>Cosmic compiler</title>
 
     <base href="/" />
 
@@ -17,7 +17,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Space_Grotesk:wght@300;500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Space+Grotesk:wght@300;500;700&family=Space+Mono:wght@400;700&display=swap"
       rel="stylesheet"
     />
     <link
@@ -33,5 +33,11 @@
 
   <body>
     <app-root></app-root>
+    <!-- Netlify Forms detection (SPA requires a static copy) -->
+    <form name="contact" data-netlify="true" hidden>
+      <input name="name" />
+      <input name="email" />
+      <textarea name="message"></textarea>
+    </form>
   </body>
 </html>

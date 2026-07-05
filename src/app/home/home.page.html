@@ -1,15 +1,41 @@
 <ion-content [fullscreen]="true">
 
+  <!-- Custom cursor -->
+  <div class="cursor-dot"></div>
+  <div class="cursor-ring"></div>
+
   <!-- Three.js particle canvas -->
   <canvas #threeCanvas class="three-canvas"></canvas>
 
+  <!-- Coordinate HUD — top-right, updates on mouse move -->
+  <div class="coord-hud" aria-hidden="true">
+    <div class="coord-label">▸ Nav coords</div>
+    <div class="coord-row">
+      <span class="coord-key">LAT</span>
+      <span class="coord-val coord-lat">--°--'--.-"N</span>
+    </div>
+    <div class="coord-row">
+      <span class="coord-key">LON</span>
+      <span class="coord-val coord-lon">---°--'--.-"E</span>
+    </div>
+  </div>
+
   <!-- ── ORBIT SYSTEM ─────────────────────────────────────── -->
   <div class="orbit-container">
+
+    <!-- Orbit path rings — one per nav item, radius matches ORBIT_RADII order -->
+    <svg class="orbit-rings" viewBox="-250 -250 500 500" xmlns="http://www.w3.org/2000/svg">
+      <circle class="orbit-ring" cx="0" cy="0" r="155"/><!-- projects -->
+      <circle class="orbit-ring" cx="0" cy="0" r="195"/><!-- experience -->
+      <circle class="orbit-ring" cx="0" cy="0" r="230"/><!-- blogs -->
+      <circle class="orbit-ring" cx="0" cy="0" r="175"/><!-- contact -->
+    </svg>
 
     <!-- Logo — hover trigger -->
     <div class="orbit-logo"
          (mouseenter)="onOrbitHover()"
          (mouseleave)="onOrbitLeave()">
+      <div class="sun-glow"></div>
       <img
         src="../../assets/profile_image/one.png"
         alt="Logo"
@@ -24,7 +50,7 @@
          (mouseleave)="onOrbitLeave()"
          (click)="toggleView('projects')">
       <span class="nav-meta">01</span>
-      <h3 class="nav-title">projects</h3>
+      <h3 class="nav-title">Projects</h3>
     </div>
 
     <!-- 02 — experience (right) -->
@@ -34,7 +60,7 @@
          (mouseleave)="onOrbitLeave()"
          (click)="toggleView('experience')">
       <span class="nav-meta">02</span>
-      <h3 class="nav-title">experience</h3>
+      <h3 class="nav-title">Experience</h3>
     </div>
 
     <!-- 03 — blogs (bottom) -->
@@ -44,7 +70,7 @@
          (mouseleave)="onOrbitLeave()"
          (click)="toggleView('blogs')">
       <span class="nav-meta">03</span>
-      <h3 class="nav-title">blogs</h3>
+      <h3 class="nav-title">Blogs</h3>
     </div>
 
     <!-- 04 — contact (left) -->
@@ -54,141 +80,197 @@
          (mouseleave)="onOrbitLeave()"
          (click)="toggleView('contact')">
       <span class="nav-meta">04</span>
-      <h3 class="nav-title">contact</h3>
+      <h3 class="nav-title">Contact</h3>
     </div>
 
   </div>
 
   <!-- ── CONTENT PANEL (bottom sheet) ─────────────────────── -->
   <div class="content-panel" [class.panel-active]="activeView !== null">
-    <div class="panel-inner">
 
-      <!-- Close -->
-      <button class="close-btn" (click)="closePanel()">
-        <span class="material-symbols-outlined text-base leading-none">close</span>
-        <span class="font-label text-[8px] tracking-[0.2em] uppercase">close</span>
-      </button>
+    <!-- HUD corner brackets -->
+    <div class="hud-corners" aria-hidden="true">
+      <span class="hud-c hud-tl"></span>
+      <span class="hud-c hud-tr"></span>
+      <span class="hud-c hud-bl"></span>
+      <span class="hud-c hud-br"></span>
+    </div>
+    <!-- Scanline texture -->
+    <div class="hud-scanlines" aria-hidden="true"></div>
+    <!-- Top status bar -->
+    <div class="hud-status-bar">
+      <span class="hud-ss">▸ Online</span>
+      <span class="hud-sep">//</span>
+      <span class="hud-ss">Module :: <span class="hud-module">{{ activeView || 'Standby' }}</span></span>
+      <span class="hud-sep">//</span>
+      <span class="hud-ss">Status: <span class="hud-nominal">Nominal</span><span class="hud-blink">_</span></span>
+      <button class="close-btn" (click)="closePanel()" aria-label="Close panel"></button>
+    </div>
+
+    <div class="panel-inner">
 
       <!-- PROJECTS ──────────────────────────── -->
       <div [hidden]="activeView !== 'projects'">
-        <span class="panel-section-label">01 — PROJECTS</span>
-        <div class="flex gap-5 h-full">
-          <div class="flex-1 bg-surface-container-low border border-outline-variant/10 p-5 group">
-            <div class="flex gap-2 mb-4 flex-wrap">
-              <span class="bg-surface-container-highest px-2 py-0.5 font-label text-[8px] tracking-widest uppercase">ANGULAR</span>
-              <span class="bg-surface-container-highest px-2 py-0.5 font-label text-[8px] tracking-widest uppercase">IONIC</span>
-              <span class="bg-surface-container-highest px-2 py-0.5 font-label text-[8px] tracking-widest uppercase">TAILWIND</span>
+        <span class="panel-section-label">01 :: Projects</span>
+        <div class="flex flex-col gap-3">
+          <div class="p-4 hud-card">
+            <div class="flex gap-2 mb-3 flex-wrap">
+              <span class="hud-tag">Angular</span>
+              <span class="hud-tag">Ionic</span>
+              <span class="hud-tag">Firebase</span>
+              <span class="hud-tag">Google Maps</span>
+              <span class="hud-tag">Leaflet.js</span>
+              <span class="hud-tag">NgRx</span>
             </div>
-            <h4 class="font-headline font-bold text-2xl mb-2">MY ZERO SPACE</h4>
-            <div class="w-full h-px bg-outline-variant/20 mb-3"></div>
-            <p class="text-on-surface-variant text-xs leading-relaxed">Personal portfolio featuring editorial design and smooth state transitions across a minimal navigation system.</p>
+            <h4 class="font-headline font-bold text-xl mb-2">BogPro</h4>
+            <div class="hud-divider"></div>
+            <p class="text-on-surface-variant text-xs leading-relaxed">Enterprise cross-platform application for <span class="text-white">Lafarge Holcim International</span>. Advanced Google Maps with drag-and-drop markers, polygon editing, offline mapping via Leaflet.js with GeoJSON, and real-time Firebase Cloud Messaging.</p>
           </div>
-          <div class="w-64 flex flex-col gap-5">
-            <div class="bg-surface-container-high p-5 flex-1 border border-outline-variant/10 group hover:border-primary/20 transition-colors">
-              <span class="font-label text-[8px] tracking-widest text-on-surface-variant mb-5 block uppercase">DESIGN SYSTEM</span>
-              <h4 class="font-headline font-bold text-base mb-3 group-hover:text-primary transition-colors">MONOLITH UI</h4>
-              <div class="w-full h-px bg-outline-variant/20 mb-3"></div>
-              <p class="text-[10px] text-on-surface-variant leading-relaxed">Zero-radius component library for editorial and dark-mode-first interfaces.</p>
+          <div class="p-4 hud-card">
+            <span class="hud-label">AI · News Portal</span>
+            <h4 class="font-headline font-bold text-sm mt-1 mb-2">IV-CMS</h4>
+            <div class="flex gap-1.5 mb-2 flex-wrap">
+              <span class="hud-tag hud-tag-sm">LLM</span>
+              <span class="hud-tag hud-tag-sm">MCP</span>
+              <span class="hud-tag hud-tag-sm">OpenAI</span>
             </div>
-            <div class="bg-surface-container-high p-5 flex-1 border border-outline-variant/10 group hover:border-primary/20 transition-colors">
-              <span class="font-label text-[8px] tracking-widest text-on-surface-variant mb-5 block uppercase">OPEN SOURCE</span>
-              <h4 class="font-headline font-bold text-base mb-3 group-hover:text-primary transition-colors">SIGNAL KIT</h4>
-              <div class="w-full h-px bg-outline-variant/20 mb-3"></div>
-              <p class="text-[10px] text-on-surface-variant leading-relaxed">Angular signal-based state management utilities for reactive UI architectures.</p>
+            <div class="hud-divider"></div>
+            <p class="text-[10px] text-on-surface-variant leading-relaxed">AI chatbot with LLM–MCP–Pinecone pipeline and OpenAI news discovery engine.</p>
+          </div>
+          <div class="p-4 hud-card">
+            <span class="hud-label">3D · Maps</span>
+            <h4 class="font-headline font-bold text-sm mt-1 mb-2">3D in Google Maps</h4>
+            <div class="flex gap-1.5 mb-2 flex-wrap">
+              <span class="hud-tag hud-tag-sm">Three.js</span>
+              <span class="hud-tag hud-tag-sm">Blender</span>
             </div>
+            <div class="hud-divider"></div>
+            <p class="text-[10px] text-on-surface-variant leading-relaxed">Rendering 3D models inside Google Maps via Three.js WebGL in Angular + Ionic.</p>
           </div>
         </div>
       </div>
 
       <!-- EXPERIENCE ────────────────────────── -->
       <div [hidden]="activeView !== 'experience'">
-        <span class="panel-section-label">02 — EXPERIENCE</span>
-        <div class="flex gap-5">
-          <div class="flex-1 bg-surface-container-low border border-outline-variant/10 p-5">
-            <span class="font-label text-[8px] tracking-widest text-on-surface-variant mb-3 block uppercase">CURRENT · 2022 — PRESENT</span>
-            <h4 class="font-headline font-bold text-3xl mb-3">IMPLEVISTA</h4>
-            <div class="w-full h-px bg-outline-variant/20 mb-3"></div>
-            <p class="text-on-surface-variant text-xs leading-relaxed max-w-lg mb-4">Lead Software Engineer architecting scalable web applications, design systems, and mobile-first experiences.</p>
+        <span class="panel-section-label">02 :: Experience</span>
+        <div class="flex flex-col gap-3">
+          <div class="p-4 hud-card">
+            <span class="hud-label">Current · Jan 2024 — Present</span>
+            <h4 class="font-headline font-bold text-2xl mt-1 mb-3">Implevista</h4>
+            <div class="hud-divider"></div>
+            <p class="text-on-surface-variant text-xs leading-relaxed mb-4">Software Engineer building enterprise cross-platform apps and AI-powered tools. Led BogPro for Lafarge Holcim International and IV-CMS with LLM chatbot and OpenAI news discovery.</p>
             <div class="flex gap-2 flex-wrap">
-              <span class="bg-surface-container-highest px-2 py-0.5 font-label text-[8px] tracking-widest uppercase">ANGULAR</span>
-              <span class="bg-surface-container-highest px-2 py-0.5 font-label text-[8px] tracking-widest uppercase">IONIC</span>
-              <span class="bg-surface-container-highest px-2 py-0.5 font-label text-[8px] tracking-widest uppercase">TYPESCRIPT</span>
-              <span class="bg-surface-container-highest px-2 py-0.5 font-label text-[8px] tracking-widest uppercase">TAILWIND</span>
+              <span class="hud-tag">Angular</span>
+              <span class="hud-tag">Ionic</span>
+              <span class="hud-tag">NgRx</span>
+              <span class="hud-tag">Firebase</span>
+              <span class="hud-tag">Google Maps</span>
+              <span class="hud-tag">LLM</span>
             </div>
           </div>
-          <div class="flex flex-col gap-5 w-60">
-            <div class="bg-surface-container-high p-5 flex-1 border border-outline-variant/10">
-              <span class="font-label text-[8px] tracking-widest text-on-surface-variant mb-3 block uppercase">2020 — 2022</span>
-              <h4 class="font-headline font-bold text-sm mb-2">FLUX LABS</h4>
-              <div class="w-full h-px bg-outline-variant/20 mb-3"></div>
-              <p class="text-[10px] text-on-surface-variant leading-relaxed">Product engineer focused on consumer-facing web apps and performance.</p>
-            </div>
-            <div class="bg-surface-container-high p-5 flex-1 border border-outline-variant/10">
-              <span class="font-label text-[8px] tracking-widest text-on-surface-variant mb-3 block uppercase">2018 — 2020</span>
-              <h4 class="font-headline font-bold text-sm mb-2">ARCANE DIGITAL</h4>
-              <div class="w-full h-px bg-outline-variant/20 mb-3"></div>
-              <p class="text-[10px] text-on-surface-variant leading-relaxed">UI engineer crafting editorial and e-commerce interfaces.</p>
-            </div>
+          <div class="p-4 hud-card">
+            <span class="hud-label">Jan 2023 — Dec 2023</span>
+            <h4 class="font-headline font-bold text-sm mt-1 mb-2">Implevista · Jr Software Engineer</h4>
+            <div class="hud-divider"></div>
+            <p class="text-[10px] text-on-surface-variant leading-relaxed">Global Expert App — audit management with Google Maps, NgRx, and Firebase Cloud Functions.</p>
+          </div>
+          <div class="p-4 hud-card">
+            <span class="hud-label">Jul 2022 — Dec 2022</span>
+            <h4 class="font-headline font-bold text-sm mt-1 mb-2">Ntitas IT · Intern</h4>
+            <div class="hud-divider"></div>
+            <p class="text-[10px] text-on-surface-variant leading-relaxed">Udyam ERP — UI dev, REST API integration, React and Next.js foundations.</p>
           </div>
         </div>
       </div>
 
       <!-- BLOGS ─────────────────────────────── -->
       <div [hidden]="activeView !== 'blogs'">
-        <span class="panel-section-label">03 — BLOGS</span>
-        <div class="flex gap-5">
-          <div class="flex-1 group bg-surface-container-low border border-outline-variant/10 hover:border-primary/20 transition-colors p-5">
-            <span class="font-label text-[8px] tracking-widest text-on-surface-variant mb-4 block uppercase">ENGINEERING · JAN 2024</span>
-            <h4 class="font-headline font-bold text-base mb-3 group-hover:text-primary transition-colors leading-snug">Building Dark UI Systems at Scale</h4>
-            <div class="w-full h-px bg-outline-variant/20 mb-3"></div>
-            <p class="text-[10px] text-on-surface-variant leading-relaxed">Systematic approaches for dark mode design, token architecture, and cross-platform consistency.</p>
-          </div>
-          <div class="flex-1 group bg-surface-container-low border border-outline-variant/10 hover:border-primary/20 transition-colors p-5">
-            <span class="font-label text-[8px] tracking-widest text-on-surface-variant mb-4 block uppercase">PERFORMANCE · NOV 2023</span>
-            <h4 class="font-headline font-bold text-base mb-3 group-hover:text-primary transition-colors leading-snug">Angular 17 and the Signal Revolution</h4>
-            <div class="w-full h-px bg-outline-variant/20 mb-3"></div>
-            <p class="text-[10px] text-on-surface-variant leading-relaxed">How signals change the way we think about state management and reactivity in modern Angular apps.</p>
-          </div>
-          <div class="flex-1 group bg-surface-container-low border border-outline-variant/10 hover:border-primary/20 transition-colors p-5">
-            <span class="font-label text-[8px] tracking-widest text-on-surface-variant mb-4 block uppercase">DESIGN · SEP 2023</span>
-            <h4 class="font-headline font-bold text-base mb-3 group-hover:text-primary transition-colors leading-snug">Editorial UI: Typography as Architecture</h4>
-            <div class="w-full h-px bg-outline-variant/20 mb-3"></div>
-            <p class="text-[10px] text-on-surface-variant leading-relaxed">How typographic hierarchy and restraint create layouts that feel intentional and editorial.</p>
-          </div>
+        <span class="panel-section-label">03 :: Blogs</span>
+        <div class="flex flex-col gap-3">
+          <a href="https://amiram.hashnode.dev" target="_blank" rel="noopener" class="p-4 hud-card hud-card-link block no-underline">
+            <span class="hud-label">Maps · Three.js</span>
+            <h4 class="font-headline font-bold text-sm mt-1 mb-3 leading-snug">Rendering 3D Models Inside Google Maps with Three.js</h4>
+            <div class="hud-divider"></div>
+            <p class="text-[10px] text-on-surface-variant leading-relaxed">Integrating Three.js WebGL with the Google Maps JS API Loader inside Angular and Ionic.</p>
+          </a>
+          <a href="https://amiram.hashnode.dev" target="_blank" rel="noopener" class="p-4 hud-card hud-card-link block no-underline">
+            <span class="hud-label">Geospatial</span>
+            <h4 class="font-headline font-bold text-sm mt-1 mb-3 leading-snug">Offline Maps with Leaflet.js and Custom GeoJSON</h4>
+            <div class="hud-divider"></div>
+            <p class="text-[10px] text-on-surface-variant leading-relaxed">Building offline-capable map views with Leaflet.js, tile caching, and GeoJSON zone drawing.</p>
+          </a>
+          <a href="https://amiram.hashnode.dev" target="_blank" rel="noopener" class="p-4 hud-card hud-card-link block no-underline">
+            <span class="hud-label">AI · LLM</span>
+            <h4 class="font-headline font-bold text-sm mt-1 mb-3 leading-snug">Building AI Chatbots with LLM, MCP Server and Vector DB</h4>
+            <div class="hud-divider"></div>
+            <p class="text-[10px] text-on-surface-variant leading-relaxed">LLM + MCP server + Pinecone vector retrieval for context-aware, grounded AI responses.</p>
+          </a>
         </div>
       </div>
 
       <!-- CONTACT ───────────────────────────── -->
       <div [hidden]="activeView !== 'contact'">
-        <span class="panel-section-label">04 — CONTACT</span>
-        <div class="flex gap-5">
-          <div class="flex-1 bg-surface-container-low border border-outline-variant/10 p-5">
-            <span class="font-label text-[8px] tracking-widest text-on-surface-variant mb-3 block uppercase">GET IN TOUCH</span>
-            <h4 class="font-headline font-bold text-3xl mb-0.5">MUSTAFA</h4>
-            <h4 class="font-headline font-bold text-3xl mb-3 text-on-surface-variant">IRAM</h4>
-            <div class="w-full h-px bg-outline-variant/20 mb-3"></div>
-            <a href="mailto:mustafa.iram@implevista.com"
-               class="font-label text-[10px] tracking-widest text-primary hover:text-on-surface-variant transition-colors uppercase block mb-3">
-              mustafa.iram&#64;implevista.com
-            </a>
-            <p class="text-on-surface-variant text-xs leading-relaxed max-w-md">Open to new projects, collaborations, and interesting problems. Let's talk.</p>
+        <span class="panel-section-label">04 :: Contact</span>
+        <div class="flex flex-col gap-3">
+          <div class="p-4 hud-card">
+            <span class="hud-label">Get in touch</span>
+            <h4 class="font-headline font-bold text-2xl mt-1 mb-0.5">Mustafa</h4>
+            <h4 class="font-headline font-bold text-2xl mb-3 text-on-surface-variant">Iram</h4>
+            <div class="hud-divider"></div>
+            <a href="mailto:udoyiram263@gmail.com" class="hud-link block mb-1.5">udoyiram263&#64;gmail.com</a>
+            <a href="tel:+8801788601915" class="hud-link-dim block mb-3">+880 1788 601915</a>
+            <p class="text-on-surface-variant text-xs leading-relaxed">Full Stack Engineer · 4 yrs experience · Open to remote work worldwide.</p>
           </div>
-          <div class="flex flex-col gap-5 w-60">
-            <div class="bg-surface-container-high p-5 flex-1 border border-outline-variant/10">
-              <span class="font-label text-[8px] tracking-widest text-on-surface-variant mb-3 block uppercase">LOCATION</span>
-              <h4 class="font-headline font-bold text-sm mb-2">KARACHI</h4>
-              <div class="w-full h-px bg-outline-variant/20 mb-3"></div>
-              <p class="text-[10px] text-on-surface-variant leading-relaxed">Pakistan · Available for remote work worldwide.</p>
+          <div class="p-4 hud-card">
+            <span class="hud-label">Location</span>
+            <h4 class="font-headline font-bold text-sm mt-1 mb-2">Dhaka, BD</h4>
+            <div class="hud-divider"></div>
+            <div class="flex gap-3 mt-2 flex-wrap">
+              <a href="https://linkedin.com/in/mustafa-iram-bab3a8221" target="_blank" rel="noopener" class="hud-link-sm">LinkedIn</a>
+              <a href="https://github.com/Iram0598" target="_blank" rel="noopener" class="hud-link-sm">GitHub</a>
+              <a href="https://amiram.hashnode.dev" target="_blank" rel="noopener" class="hud-link-sm">Blog</a>
             </div>
-            <div class="bg-surface-container-high p-5 flex-1 border border-outline-variant/10">
-              <span class="font-label text-[8px] tracking-widest text-on-surface-variant mb-3 block uppercase">AVAILABILITY</span>
-              <div class="flex items-center gap-2 mb-2">
-                <div class="w-2 h-2 rounded-full bg-green-400 shrink-0"></div>
-                <h4 class="font-headline font-bold text-sm">OPEN</h4>
+          </div>
+          <div class="p-4 hud-card">
+            <span class="hud-label">Availability</span>
+            <div class="flex items-center gap-2 mt-1 mb-2">
+              <div class="hud-pulse-dot"></div>
+              <h4 class="font-headline font-bold text-sm">Open</h4>
+            </div>
+            <div class="hud-divider"></div>
+            <p class="text-[10px] text-on-surface-variant leading-relaxed mt-2">Available for freelance, contract, and full-time opportunities.</p>
+          </div>
+          <div class="p-4 hud-card">
+            <span class="hud-label">Send message</span>
+            @if (contactSent) {
+              <div class="flex flex-col items-center gap-2 py-5">
+                <span class="text-white text-xs">▸ Message transmitted</span>
+                <span class="hud-label">Standing by</span>
               </div>
-              <div class="w-full h-px bg-outline-variant/20 mb-3"></div>
-              <p class="text-[10px] text-on-surface-variant leading-relaxed">Available for freelance and full-time opportunities.</p>
-            </div>
+            } @else {
+              <form name="contact" (ngSubmit)="sendContact()" class="flex flex-col gap-3 mt-3">
+                <div>
+                  <label class="hud-label mb-1.5 block">Name</label>
+                  <input type="text" name="name" [(ngModel)]="contactName"
+                         class="hud-input" placeholder="Your name" required />
+                </div>
+                <div>
+                  <label class="hud-label mb-1.5 block">Email</label>
+                  <input type="email" name="email" [(ngModel)]="contactEmail"
+                         class="hud-input" placeholder="Your email" required />
+                </div>
+                <div>
+                  <label class="hud-label mb-1.5 block">Message</label>
+                  <textarea name="message" [(ngModel)]="contactMessage"
+                            class="hud-input hud-textarea" placeholder="Your message"
+                            rows="3" required></textarea>
+                </div>
+                <button type="submit" class="hud-send-btn" [disabled]="contactSending">
+                  <span class="transmit-dot"></span>
+                  {{ contactSending ? 'Transmitting...' : 'Transmit' }}
+                </button>
+              </form>
+            }
           </div>
         </div>
       </div>

@@ -49,9 +49,9 @@
   --color-surface-container-lowest: #0e0e0e;
   --color-on-surface: #e2e2e2;
 
-  --font-headline: Inter, sans-serif;
-  --font-body: Inter, sans-serif;
-  --font-label: "Space Grotesk", sans-serif;
+  --font-headline: 'Space Mono', monospace;
+  --font-body: 'Space Mono', monospace;
+  --font-label: 'Space Mono', monospace;
 }
 
 @import "@ionic/angular/css/core.css";
@@ -67,12 +67,13 @@
 @import "@ionic/angular/css/palettes/dark.class.css";
 
 :root {
-  --ion-font-family: Inter, sans-serif;
+  --ion-font-family: 'Space Mono', monospace;
   --ion-background-color: #000000;
   --ion-text-color: #ffffff;
 }
 
 body {
+  font-family: 'Space Mono', monospace;
   background-color: #000000;
   color: #ffffff;
   overflow-x: hidden;
