@@ -1,3 +1,134 @@
+/* ── Cinematic intro overlay ─────────────────────────────── */
+
+.intro-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+}
+
+.intro-scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 2px,
+    rgba(0, 0, 0, 0.22) 2px,
+    rgba(0, 0, 0, 0.22) 3px
+  );
+  z-index: 1;
+}
+
+.intro-pre {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.intro-pre-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 0.3em;
+  color: rgba(255, 255, 255, 0.65);
+  animation: intro-breathe 2.4s ease-in-out infinite;
+}
+
+@keyframes intro-breathe {
+  0%, 100% { opacity: 0.65; }
+  50%       { opacity: 1; }
+}
+
+.intro-seq {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.intro-text {
+  font-family: 'Space Mono', monospace;
+  font-weight: 400;
+  /* scale so the longest line (~48 chars × 0.6em) always fits on one line */
+  font-size: min(calc((100vw - 5rem) / 28.8), 1.5rem);
+  white-space: nowrap;
+  color: #fff;
+  text-align: center;
+  letter-spacing: 0.04em;
+  line-height: 1.75;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  text-shadow:
+    0 0 30px rgba(255, 255, 255, 0.14),
+    0 0 80px rgba(255, 255, 255, 0.05);
+}
+
+.intro-profile {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  opacity: 0;
+  z-index: 3;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.intro-profile-glow {
+  position: absolute;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.10) 0%, transparent 65%);
+  box-shadow:
+    0 0 50px 24px rgba(255, 255, 255, 0.10),
+    0 0 110px 50px rgba(200, 220, 255, 0.05),
+    0 0 180px 70px rgba(160, 200, 255, 0.02);
+}
+
+.intro-profile-circle {
+  position: relative;
+  z-index: 1;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: #000;
+  box-shadow: inset 0 0 18px 4px rgba(255, 255, 255, 0.04);
+}
+
+.intro-skip {
+  position: fixed;
+  bottom: 1.8rem;
+  right: 2rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.22em;
+  color: rgba(255, 255, 255, 0.22);
+  background: transparent;
+  border: none;
+  opacity: 0;
+  pointer-events: none;
+  cursor: pointer;
+  padding: 6px 10px;
+  z-index: 9001;
+  transition: color 0.2s;
+
+  &:hover { color: rgba(255, 255, 255, 0.6); }
+}
+
 /* ── Custom cursor (desktop / hover-capable devices only) ── */
 
 @media (hover: hover) {
@@ -439,6 +570,58 @@
 @keyframes hud-dot-pulse {
   0%, 100% { opacity: 1;   box-shadow: 0 0 7px  rgba(74, 222, 128, 0.55); }
   50%       { opacity: 0.5; box-shadow: 0 0 14px rgba(74, 222, 128, 0.2);  }
+}
+
+/* ── Ambient audio mute toggle (top-left) ───────────────── */
+
+.mute-btn {
+  position: fixed;
+  top: 1.1rem;
+  left: 1.4rem;
+  z-index: 35;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: transparent;
+  border: none;
+  padding: 4px 0;
+  opacity: 0;
+  pointer-events: auto;
+
+  &:hover .mute-label {
+    color: rgba(255, 255, 255, 0.65);
+  }
+}
+
+.mute-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.45);
+  animation: mute-pulse 2.5s ease-in-out infinite;
+
+  .mute-btn--off & {
+    background: rgba(255, 255, 255, 0.15);
+    animation: none;
+  }
+}
+
+@keyframes mute-pulse {
+  0%, 100% { opacity: 0.45; }
+  50%       { opacity: 0.95; }
+}
+
+.mute-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 7px;
+  letter-spacing: 0.22em;
+  color: rgba(255, 255, 255, 0.3);
+  transition: color 0.2s;
+
+  .mute-btn--off & {
+    color: rgba(255, 255, 255, 0.15);
+  }
 }
 
 /* ── Coordinate HUD (top-right, mouse-tracking) ────────── */

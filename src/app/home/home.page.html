@@ -1,11 +1,37 @@
 <ion-content [fullscreen]="true">
 
+  <!-- ── Cinematic intro overlay ───────────────────────────── -->
+  <div class="intro-screen">
+    <div class="intro-scanlines" aria-hidden="true"></div>
+    <!-- Pre-roll -->
+    <div class="intro-pre">
+      <span class="intro-pre-label">Press for liftoff</span>
+    </div>
+    <!-- Sequence text -->
+    <div class="intro-seq">
+      <p class="intro-text"></p>
+    </div>
+    <!-- Skip -->
+    <button class="intro-skip" (click)="skipIntro()">skip ▸</button>
+    <!-- Profile entrance: black glowing orb that scales down to orbit-logo position -->
+    <div class="intro-profile">
+      <div class="intro-profile-glow"></div>
+      <div class="intro-profile-circle"></div>
+    </div>
+  </div>
+
   <!-- Custom cursor -->
   <div class="cursor-dot"></div>
   <div class="cursor-ring"></div>
 
   <!-- Three.js particle canvas -->
   <canvas #threeCanvas class="three-canvas"></canvas>
+
+  <!-- Ambient audio toggle — top-left -->
+  <button class="mute-btn" (click)="toggleMute()" [class.mute-btn--off]="isMuted" aria-label="Toggle ambient audio">
+    <span class="mute-dot"></span>
+    <span class="mute-label">{{ isMuted ? 'muted' : 'ambient' }}</span>
+  </button>
 
   <!-- Coordinate HUD — top-right, updates on mouse move -->
   <div class="coord-hud" aria-hidden="true">

@@ -31,6 +31,7 @@ export class HomePage implements AfterViewInit, OnDestroy {
   @ViewChild('threeCanvas') canvasRef!: ElementRef<HTMLCanvasElement>;
 
   activeView: string | null = null;
+  isMuted = false;
 
   contactName    = '';
   contactEmail   = '';
@@ -58,6 +59,22 @@ export class HomePage implements AfterViewInit, OnDestroy {
 
   private coordLatEl: HTMLElement | null = null;
   private coordLonEl: HTMLElement | null = null;
+
+  private introAudio: HTMLAudioElement | null = null;
+  private bgAudio: HTMLAudioElement | null = null;
+  private introTl: gsap.core.Timeline | null = null;
+  private introFinishing = false;
+  private audioCtx: AudioContext | null = null;
+  private staticGain: GainNode | null = null;
+  private staticSource: AudioBufferSourceNode | null = null;
+
+  private readonly INTRO_LINES = [
+    'Every journey begins with a single launch.',
+    'Not toward another planet... but toward an idea.',
+    'Every line of code became a star.',
+    'Every challenge became another orbit.',
+    'Welcome, traveler.',
+  ];
 
   // One entry per nav item, matched by DOM order: projects, experience, blogs, contact
   private orbitConfigs: OrbitCfg[] = [
@@ -87,6 +104,7 @@ export class HomePage implements AfterViewInit, OnDestroy {
     gsap.set('.three-canvas', { opacity: 0 });
     gsap.set('.orbit-container', { xPercent: -50, yPercent: -50 });
     gsap.set('.orbit-logo', { opacity: 0, y: 16 });
+    gsap.set('.orbit-logo img', { opacity: 0 });
     gsap.set('.orbit-item', {
       xPercent: -50, yPercent: -50,
       x: 0, y: 0,
@@ -103,14 +121,12 @@ export class HomePage implements AfterViewInit, OnDestroy {
       this.ySetters.push(gsap.quickSetter(el, 'y', 'px') as (v: number) => void);
     });
 
-    // Entrance sequence: stars first, then solar system 0.75s later
-    gsap.to('.three-canvas', { opacity: 1, duration: 4.5, ease: 'power1.out', delay: 0.3 });
-    gsap.to('.orbit-logo', { opacity: 1, y: 0, duration: 2.8, ease: 'power2.out', delay: 1.05 });
-
     this.coordLatEl = document.querySelector<HTMLElement>('.coord-lat');
     this.coordLonEl = document.querySelector<HTMLElement>('.coord-lon');
 
     this.initCursor();
+    gsap.set('.cursor-dot, .cursor-ring', { autoAlpha: 0 });
+    this.initIntro();
   }
 
   async sendContact(): Promise<void> {
@@ -144,6 +160,211 @@ export class HomePage implements AfterViewInit, OnDestroy {
     this.starTexture?.dispose();
     this.renderer?.dispose();
     if (this.leaveTimer) clearTimeout(this.leaveTimer);
+    this.introTl?.kill();
+    this.introAudio?.pause();
+    this.bgAudio?.pause();
+    this.stopStaticNoise();
+  }
+
+  // ── Ambient audio ─────────────────────────────────────────
+
+  toggleMute(): void {
+    this.isMuted = !this.isMuted;
+    if (this.bgAudio) this.bgAudio.muted = this.isMuted;
+  }
+
+  private startBgAudio(): void {
+    this.bgAudio = new Audio('assets/sounds/marooned.mp3');
+    this.bgAudio.loop = true;
+    this.bgAudio.volume = 0;
+    this.bgAudio.muted = this.isMuted;
+    this.bgAudio.play().catch(() => {});
+
+    // Fade volume in slowly
+    const vol = { v: 0 };
+    gsap.to(vol, {
+      v: 0.5,
+      duration: 5,
+      ease: 'power1.out',
+      onUpdate: () => { if (this.bgAudio) this.bgAudio.volume = vol.v; },
+    });
+
+    // Reveal the mute button
+    gsap.to('.mute-btn', { opacity: 1, duration: 1.2, ease: 'power2.out', delay: 0.3 });
+  }
+
+  // ── Cinematic intro ───────────────────────────────────────
+
+  private initIntro(): void {
+    const screen = document.querySelector<HTMLElement>('.intro-screen')!;
+    const handler = () => {
+      screen.removeEventListener('click', handler);
+      // Fade out the pre-screen label, then wait 3s of black silence before sequence
+      gsap.to('.intro-pre', { opacity: 0, duration: 0.6, ease: 'power2.in' });
+      gsap.delayedCall(3, () => this.runIntroSequence());
+    };
+    screen.addEventListener('click', handler);
+  }
+
+  private runIntroSequence(): void {
+    const screen = document.querySelector<HTMLElement>('.intro-screen')!;
+    const seqEl  = document.querySelector<HTMLElement>('.intro-seq')!;
+    const textEl = document.querySelector<HTMLElement>('.intro-text')!;
+    const skipEl = document.querySelector<HTMLElement>('.intro-skip')!;
+
+    this.introAudio = new Audio('assets/sounds/liftoff_countdown.mp3');
+    this.introAudio.play().catch(() => {});
+
+    this.startStaticNoise();
+
+    // Profile: starts big (scale 2.3 ≈ 220px), hidden; will scale down to orbit-logo size (96px)
+    gsap.set('.intro-profile', { xPercent: -50, yPercent: -50, scale: 2.3, opacity: 0 });
+    gsap.set('.intro-profile-glow', { opacity: 0 });
+
+    const tl = gsap.timeline();
+    this.introTl = tl;
+
+    tl.to(seqEl,  { opacity: 1, duration: 0.5 }, 0.5)
+      .to(skipEl, { opacity: 1, pointerEvents: 'auto', duration: 0.5 }, 1.1);
+
+    const inDur   = 2.0;
+    const holdDur = 2.5;
+    const outDur  = 1.5;
+    const gap     = 0.5;
+    const cycle   = inDur + holdDur + outDur + gap; // 6.5s per line
+    const startAt = 1.5;
+    const lastIdx = this.INTRO_LINES.length - 1;
+
+    this.INTRO_LINES.forEach((line, i) => {
+      const t      = startAt + i * cycle;
+      const isLast = i === lastIdx;
+
+      tl.call(() => {
+        textEl.textContent = line;
+        gsap.set(textEl, { opacity: 0, y: 8 });
+      }, [], t)
+      .to(textEl, { opacity: 1, y: 0, duration: inDur, ease: 'power2.out' }, t + 0.02);
+
+      if (!isLast) {
+        tl.to(textEl, { opacity: 0, y: -8, duration: outDur, ease: 'power2.in' }, t + 0.02 + inDur + holdDur);
+      }
+      // Last line ("Welcome, traveler.") holds for 6s, then profile animation begins
+    });
+
+    // lastT = 1.5 + 4×6.5 = 27.5  |  profileT = 27.5 + 2.0(fade-in) + 6.0(hold) = 35.5
+    const lastT    = startAt + lastIdx * cycle;
+    const profileT = lastT + inDur + 6.0;
+
+    tl
+      // Fade out intro audio once "Welcome, traveler." is fully visible
+      .call(() => {
+        if (!this.introAudio) return;
+        const audio = this.introAudio;
+        const vol = { v: audio.volume };
+        gsap.to(vol, {
+          v: 0, duration: 2.0, ease: 'power1.in',
+          onUpdate: () => { audio.volume = vol.v; },
+          onComplete: () => { audio.pause(); this.introAudio = null; },
+        });
+      }, [], lastT)
+      // Dissolve text + hide skip; profile waits until text is fully gone
+      .to(textEl, { opacity: 0, y: -8, duration: 1.5, ease: 'power2.in' }, profileT)
+      .to(skipEl, { opacity: 0, pointerEvents: 'none', duration: 0.5 }, profileT)
+      // Profile fades in after text is fully gone (profileT + 1.5)
+      .to('.intro-profile', { opacity: 1, duration: 1.5, ease: 'power2.out' }, profileT + 1.5)
+      // Glow blooms slightly after
+      .to('.intro-profile-glow', { opacity: 1, duration: 2.5, ease: 'power2.out' }, profileT + 2.0)
+      // Profile scales down to orbit-logo size (scale:1 = 96px)
+      .to('.intro-profile', { scale: 1, duration: 3.5, ease: 'power3.inOut' }, profileT + 3.0)
+      // Stars fade in as scale-down starts
+      .call(() => {
+        this.stopStaticNoise();
+        gsap.to('.three-canvas', { opacity: 1, duration: 4.5, ease: 'power1.out' });
+        gsap.to('.cursor-dot, .cursor-ring', { autoAlpha: 1, duration: 1.2, delay: 2 });
+      }, [], profileT + 3.0)
+      // Overlay fades out 2s into the scale-down
+      .to(screen, { opacity: 0, duration: 2.5, ease: 'power2.inOut' }, profileT + 5.0)
+      // Once overlay is gone, reveal orbit logo and profile image
+      .call(() => {
+        this.introFinishing = true;
+        screen.style.display = 'none';
+        gsap.set('.orbit-logo', { opacity: 1, y: 0 });
+        gsap.to('.orbit-logo img', { opacity: 1, duration: 1.6, ease: 'power2.out', delay: 0.2 });
+        this.startBgAudio();
+      }, [], profileT + 7.5);
+
+    // Safety: if timeline somehow stalls, force skip after 85s
+    gsap.delayedCall(85, () => { if (!this.introFinishing) this.skipIntro(); });
+  }
+
+  skipIntro(): void {
+    if (this.introFinishing) return;
+    this.introFinishing = true;
+    this.introTl?.kill();
+    this.introAudio?.pause();
+    this.introAudio = null;
+    this.stopStaticNoise();
+
+    const screen = document.querySelector<HTMLElement>('.intro-screen');
+    if (!screen) return;
+
+    gsap.to('.three-canvas', { opacity: 1, duration: 4.5, ease: 'power1.out' });
+    gsap.to('.cursor-dot, .cursor-ring', { autoAlpha: 1, duration: 1, delay: 1 });
+
+    gsap.to(screen, {
+      opacity: 0, duration: 1.5, ease: 'power2.inOut',
+      onComplete: () => {
+        screen.style.display = 'none';
+        gsap.set('.orbit-logo', { opacity: 1, y: 0 });
+        gsap.to('.orbit-logo img', { opacity: 1, duration: 1.6, ease: 'power2.out', delay: 0.2 });
+        this.startBgAudio();
+      },
+    });
+  }
+
+  private startStaticNoise(): void {
+    try {
+      this.audioCtx = new AudioContext();
+      const rate = this.audioCtx.sampleRate;
+      const buf  = this.audioCtx.createBuffer(1, rate * 2, rate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+
+      this.staticSource = this.audioCtx.createBufferSource();
+      this.staticSource.buffer = buf;
+      this.staticSource.loop   = true;
+
+      const bpf = this.audioCtx.createBiquadFilter();
+      bpf.type            = 'bandpass';
+      bpf.frequency.value = 1800;
+      bpf.Q.value         = 0.7;
+
+      this.staticGain = this.audioCtx.createGain();
+      this.staticGain.gain.value = 0;
+
+      this.staticSource.connect(bpf);
+      bpf.connect(this.staticGain);
+      this.staticGain.connect(this.audioCtx.destination);
+      this.staticSource.start();
+
+      const now = this.audioCtx.currentTime;
+      this.staticGain.gain.setTargetAtTime(0.05, now, 0.4);
+      this.staticGain.gain.setTargetAtTime(0.012, now + 2.5, 1.2);
+    } catch { /* Safari / blocked AudioContext — skip static */ }
+  }
+
+  private stopStaticNoise(): void {
+    if (!this.audioCtx || !this.staticGain) return;
+    try {
+      this.staticGain.gain.setTargetAtTime(0, this.audioCtx.currentTime, 0.4);
+      setTimeout(() => {
+        this.staticSource?.stop();
+        this.audioCtx?.close();
+        this.audioCtx    = null;
+        this.staticGain  = null;
+        this.staticSource = null;
+      }, 1500);
+    } catch {}
   }
 
   // ── Custom cursor ─────────────────────────────────────────
